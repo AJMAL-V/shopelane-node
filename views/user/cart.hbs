@@ -1,0 +1,105 @@
+<section>
+    <div class="container">
+    <table class="table mt-5">
+        <thead>
+            <tr>
+                <th scope="col">Item</th>
+                                <th scope="col">Title</th>
+                                <th>Price</th>
+                <th scope="col">Quantity</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            {{#each products}}
+            
+            <tr>
+                
+                <td><img style="width: 70px;heighet: 70px;" src="/product-images/{{this.product._id}}.png" alt="image"></td>
+                <td>{{this.product.Name}}</td>
+                <td>Rs.{{this.product.Price}}</td>
+                <td>
+                    <button class="cart-item-count mr-3" onclick="changeQuantity('{{this._id}}','{{this.product._id}}','{{../user._id}}',-1)">-</button>
+                   <span id="{{this.product._id}}">
+                       {{this.quantity}}
+                   </span>
+                    <button class="cart-item-count mr-3" onclick="changeQuantity('{{this._id}}','{{this.product._id}}','{{../user._id}}',1)" >+</button>
+                </td>
+                <td>
+                  <button class="btn btn-danger" onclick="productRemove('{{this._id}}','{{this.product._id}}')">Remove</button>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+    {{#if disable}}
+    <div class="float-end pr-5">
+         <hr>
+    <h3 class="float-start " style="margin-right: 10px;">Total RS. <span id="total">{{total}}</span></h3>
+    <a href="/place-order" class=" btn btn-success mt-3" style="width: 100%;" > Place Order</a>
+
+    </div>
+    {{else}}
+      <div class="col-md-12  text-center">
+                <h1 class="text-center">
+                    Add your items and place your order
+                </h1>
+                <a href="/orders" class="btn btn-primary">View Old Orders</a>
+            </div>
+    
+    {{/if}}
+   
+    </div>
+</section>
+<script>
+    function productRemove(cartid,productid){
+        $.ajax({
+            url:'/product-remove',
+            data:{
+                cartid:cartid,
+                productid:productid
+            },
+            method:'post',
+            success:function(resp){
+                if(resp.removeproduct){
+                     alert("product removed ")
+                location.reload();
+
+                }else{
+                    alert("product remove button not working")
+                }
+               
+            }
+        })
+
+    }
+    function changeQuantity(cartid,productid,userid,change){
+        let quantity=parseInt(document.getElementById(productid).innerHTML);
+        change=parseInt(change);
+        $.ajax({
+            url:'/change-product-quantity',
+            data:{
+                user:userid,
+                cart:cartid,
+                product:productid,
+                count:change,
+                quantity:quantity
+            },
+            method:'post',
+            success:function({result,total}){
+                console.log(result)
+                if(result.removeproduct){
+                    alert("product removed from cart");
+                    location.reload();
+                }else{
+                    document.getElementById(productid).innerHTML=quantity+change
+                    document.getElementById('total').innerHTML=total
+               
+                }
+            }
+        })
+    }
+     
+
+
+</script>
